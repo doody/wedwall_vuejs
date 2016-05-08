@@ -11,8 +11,16 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
+    "babel-runtime": "^5.8.38",
+    "bootstrap": "^3.3.6",
+    "filepicker-js": "^2.4.10",
+    "firebase": "^2.4.2",
+    "imagesloaded": "^4.1.0",
+    "jquery": "^2.2.3",
+    "masonry-layout": "^4.1.0",
     "vue": "^1.0.18",
-    "babel-runtime": "^5.8.0"
+    "vue-resource": "^0.7.0",
+    "vue-router": "^0.7.13"
   },
   "devDependencies": {
     "babel-core": "^6.0.0",
