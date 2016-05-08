@@ -2,7 +2,7 @@
   <div id="wrapper">
     <div class="grid">
       <div class="grid-sizer col-xs-6 col-md-4"></div>
-      <div class="grid-item col-xs-6 col-md-4" v-for="feed in feeds">
+      <div class="grid-item col-md-4" v-for="feed in feeds">
         <div class="panel panel-default">
           <div class="panel-body">
             <img class="img-responsive img-rounded" v-bind:src="feed.photo">
@@ -19,10 +19,6 @@
 
 <script>
 import Firebase from 'firebase'
-import Masonry from 'masonry-layout'
-import ImagesLoaded from 'imagesloaded'
-var grid = null
-var msnry = null
 export default {
   data () {
     return {
@@ -37,7 +33,6 @@ export default {
       var feed = snapshot.val()
       feed.id = snapshot.key()
       feedApp.feeds.push(feed)
-      feedApp.$nextTick(feedApp.relayout())
     })
 
     Feeds.on('child_changed', function (snapshot) {
@@ -47,7 +42,6 @@ export default {
         if (feed.id === id) {
           feedApp.feeds.$remove(feed)
           feedApp.feeds.push(newFeed)
-          feedApp.$nextTick(feedApp.relayout())
           return true
         }
       })
@@ -58,34 +52,15 @@ export default {
       feedApp.feeds.some(function (feed) {
         if (feed.id === id) {
           feedApp.feeds.$remove(feed)
-          feedApp.$nextTick(feedApp.relayout())
           return true
         }
       })
     })
   },
   ready () {
-    grid = document.querySelector('.grid')
-    msnry = new Masonry(grid, {
-      itemSelector: '.grid-item',
-      columnWidth: '.grid-sizer',
-      percentPosition: true
-    })
-    var imgLoaded = new ImagesLoaded(grid)
-    imgLoaded.on('progress', function () {
-      msnry.reloadItems()
-    })
-  },
-  methods: {
-    relayout: function () {
-      msnry.reloadItems()
-    }
   }
 }
 </script>
 
 <style>
-.grid {
-  margin: 0 auto;
-}
 </style>
