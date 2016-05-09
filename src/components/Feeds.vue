@@ -6,9 +6,9 @@
         <div class="card-block">
           <p class="card-text">{{ feed.msg }}</p>
         </div>
-        <div class="card-footer">
+        <div class="card-footer text-xs-right">
           <small class="text-muted">
-            from <cite title="Source Title">{{ feed.user }}</cite>
+            <cite title="Source Title">from</cite> {{ feed.user }}
           </small>
         </div>
       </div>

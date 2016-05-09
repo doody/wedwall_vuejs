@@ -24,4 +24,7 @@
 
 <style>
 body { padding-top: 70px; }
+.navbar-brand {
+  font-family: 'Lobster', cursive;
+}
 </style>
