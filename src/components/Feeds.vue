@@ -1,16 +1,15 @@
 <template>
   <div id="wrapper">
-    <div class="grid">
-      <div class="grid-sizer col-xs-6 col-md-4"></div>
-      <div class="grid-item col-md-4" v-for="feed in feeds">
-        <div class="panel panel-default">
-          <div class="panel-body">
-            <img class="img-responsive img-rounded" v-bind:src="feed.photo">
-            <span>{{ feed.msg }}</span>
-          </div>
-          <div class="panel-footer">
-            <span>from {{ feed.user }}</span>
-          </div>
+    <div class="card-columns">
+      <div class="card" v-for="feed in feeds" transition>
+        <img v-if="feed.photo" class="card-img-top img-fluid" v-bind:src="feed.photo" alt="Card image cap">
+        <div class="card-block">
+          <p class="card-text">{{ feed.msg }}</p>
+        </div>
+        <div class="card-footer">
+          <small class="text-muted">
+            from <cite title="Source Title">{{ feed.user }}</cite>
+          </small>
         </div>
       </div>
     </div>

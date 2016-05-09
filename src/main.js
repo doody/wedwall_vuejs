@@ -5,7 +5,6 @@ import FeedsView from './components/Feeds.vue'
 import PostView from './components/Post.vue'
 
 Vue.use(Router)
-
 var router = new Router()
 
 router.map({
