@@ -1,15 +1,9 @@
 <template>
   <div id="wrapper">
-    <div class="card-columns">
-      <div class="card" v-for="feed in feeds" transition>
-        <img v-if="feed.photo" class="card-img-top img-fluid" v-bind:src="feed.photo" alt="Card image cap">
-        <div class="card-block">
-          <p class="card-text">{{ feed.msg }}</p>
-        </div>
-        <div class="card-footer text-xs-right">
-          <small class="text-muted">
-            <cite title="Source Title">from</cite> {{ feed.user }}
-          </small>
+    <div id="gallery">
+      <div v-for="feed in feeds">
+        <div v-show="feed.show" transition="fade">
+          <img class="img-fluid" v-if="feed.photo" v-bind:src="feed.photo">
         </div>
       </div>
     </div>
@@ -18,6 +12,7 @@
 
 <script>
 import Firebase from 'firebase'
+require('vue-animate/dist/vue-animate.css')
 export default {
   data () {
     return {
@@ -29,8 +24,10 @@ export default {
     var Feeds = new Firebase(baseURL + 'feeds')
     var feedApp = this
     Feeds.on('child_added', function (snapshot) {
+      console.log('test')
       var feed = snapshot.val()
       feed.id = snapshot.key()
+      feed.show = false
       feedApp.feeds.push(feed)
     })
 
@@ -57,6 +54,32 @@ export default {
     })
   },
   ready () {
+    setInterval(this.randomShow, 13000)
+  },
+  methods: {
+    randomShow () {
+      var randomIndex = Math.floor(Math.random() * this.feeds.length)
+      var feed = this.feeds[randomIndex]
+      this.turnOn(feed)
+      setTimeout(this.turnOff, 10000, feed)
+      console.log(feed.photo)
+      console.log('RandomIndex: ' + randomIndex)
+    },
+    turnOn (feed) {
+      feed.show = true
+    },
+    turnOff (feed) {
+      feed.show = false
+    }
+  },
+  computed: {
+    backgroundStyle: function () {
+      return {
+        'background-image': 'url("' + this.bgimage + '")',
+        'width': '500px',
+        'height': '500px'
+      }
+    }
   }
 }
 </script>
