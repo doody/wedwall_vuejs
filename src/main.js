@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import App from './App.vue'
 import FeedsView from './components/Feeds.vue'
 import PostView from './components/Post.vue'
+import CompleteView from './components/Complete.vue'
 
 Vue.use(Router)
 var router = new Router()
@@ -15,6 +16,10 @@ router.map({
   '/post/': {
     name: 'post',
     component: PostView
+  },
+  '/complete/': {
+    name: 'complete',
+    component: CompleteView
   }
 })
 
@@ -23,7 +28,7 @@ router.beforeEach(function () {
 })
 
 router.redirect({
-  '*': '/feeds/'
+  '*': '/post/'
 })
 
 router.start(App, '#app')
