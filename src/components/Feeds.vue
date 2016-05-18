@@ -7,9 +7,9 @@
           <p>{{ feed.msg }}</p>
         </div>
         <div class="blur">
-          <img class="bg" v-if="feed.photo" v-bind:src="feed.photo">
+          <img class="bg" v-if="feed.photo" v-bind:src="feed.photo" v-bind:class="{ 'rotate90': feed.photoRotation.rotate90, 'rotate180': feed.photoRotation.rotate180, 'rotate270': feed.photoRotation.rotate270 }">
         </div>
-        <img class="bg" v-if="feed.photo" v-bind:src="feed.photo">
+        <img class="bg" v-if="feed.photo" v-bind:src="feed.photo" v-bind:src="feed.photo" v-bind:class="{ 'rotate90': feed.photoRotation.rotate90, 'rotate180': feed.photoRotation.rotate180, 'rotate270': feed.photoRotation.rotate270 }">
       </div>
     </div>
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -34,13 +34,24 @@ export default {
     var baseURL = 'https://wedwall.firebaseio.com/'
     var Feeds = new Firebase(baseURL + 'feeds')
     var feedApp = this
+    // For first fetch only, no need to push to newFeeds
     Feeds.on('child_added', function (snapshot) {
-      console.log('test')
       var feed = snapshot.val()
       feed.id = snapshot.key()
       feed.show = false
+      console.log('Push to feeds')
       feedApp.feeds.push(feed)
-      feedApp.newFeeds.push(feed)
+    })
+    // For rest of the feeds after page loaded
+    Feeds.limitToLast(1).on('child_added', function (snapshot) {
+      var id = snapshot.key()
+      console.log('Push to newFeeds')
+      feedApp.feeds.some(function (feed) {
+        if (feed.id === id) {
+          feedApp.newFeeds.push(feed)
+          return true
+        }
+      })
     })
 
     Feeds.on('child_changed', function (snapshot) {
@@ -71,14 +82,15 @@ export default {
   methods: {
     randomShow () {
       var randomIndex = Math.floor(Math.random() * this.feeds.length)
+      console.log('RandomIndex: ' + randomIndex)
       var feed = this.feeds[randomIndex]
       if (this.newFeeds.length !== 0) {
-        feed = this.newFeeds.pop()
+        console.log('NewFeeds')
+        feed = this.newFeeds.shift()
       }
       this.turnOn(feed)
       setTimeout(this.turnOff, 10000, feed)
       console.log(feed.photo)
-      console.log('RandomIndex: ' + randomIndex)
     },
     turnOn (feed) {
       feed.show = true
@@ -174,6 +186,30 @@ img.bg {
   font-family: 'cwTeXHei', sans-serif;
   font-weight: 500;
   font-size: 2.5em;
+}
+
+.rotate90 {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+.rotate180 {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.rotate270 {
+    -webkit-transform: rotate(270deg);
+    -moz-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    -ms-transform: rotate(270deg);
+    transform: rotate(270deg);
 }
 
 @media (max-width: 33.9em) {

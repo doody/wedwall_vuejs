@@ -48,7 +48,11 @@ export default {
         msg: '',
         photo: '',
         photoBlob: null,
-        photoRotation: 0
+        photoRotation: {
+          rotate90: false,
+          rotate180: false,
+          rotate270: false
+        }
       }
     }
   },
@@ -71,7 +75,11 @@ export default {
       this.newMessage.msg = ''
       this.newMessage.photo = ''
       this.newMessage.photoBlob = null
-      this.newMessage.photoRotation = 0
+      this.newMessage.photoRotation = {
+        rotate90: false,
+        rotate180: false,
+        rotate270: false
+      }
     },
     addMsg () {
       if (this.isValid) {
@@ -82,7 +90,20 @@ export default {
             console.log(rotateId)
             if (rotateId !== undefined) {
               console.log('I have rotation id: ' + rotateId)
-              app.newMessage.photoRotation = rotateId
+              switch (rotateId) {
+                case 3:
+                case 4:
+                  app.newMessage.photoRotation.rotate180 = true
+                  break
+                case 5:
+                case 6:
+                  app.newMessage.photoRotation.rotate90 = true
+                  break
+                case 7:
+                case 8:
+                  app.newMessage.photoRotation.rotate270 = true
+                  break
+              }
             }
             app.saveToFirebase()
           })
