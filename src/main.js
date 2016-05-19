@@ -4,6 +4,7 @@ import App from './App.vue'
 import FeedsView from './components/Feeds.vue'
 import PostView from './components/Post.vue'
 import CompleteView from './components/Complete.vue'
+import AdminSlideUploadView from './components/AdminSlidesUpload.vue'
 
 Vue.use(Router)
 var router = new Router()
@@ -20,6 +21,9 @@ router.map({
   '/complete/': {
     name: 'complete',
     component: CompleteView
+  },
+  '/admin/slides/upload': {
+    component: AdminSlideUploadView
   }
 })
 
