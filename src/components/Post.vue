@@ -1,37 +1,38 @@
 <template>
   <div id="wrapper">
-    <div class="container-fluid">
-      <div class="jumbotron col-xs-12 col-sm-6 col-md-8 col-md-offset-2">
-        <h1 class="display-4"><i class="fa fa-bullhorn" aria-hidden="true"></i> Leave a message</h1>
+    <div class="postform-container">
+      <div class="postform">
+        <h1><i class="fa fa-bullhorn" aria-hidden="true"></i> Leave a message</h1>
         <hr class="m-y-2">
-          <form id="form" v-on:submit.prevent="addMsg">
-            <div class="form-group row" v-bind:class="{ 'has-danger': !validation.user }">
-              <label for="inputUser" class="col-sm-4 form-control-label"><i class="fa fa-user" aria-hidden="true"></i> Name/名字</label>
-              <div class="col-sm-8">
-                <input class="form-control" id="inputUser" v-model="newMessage.user" placeholder="Your name here">
-              </div>
+        <form id="form" v-on:submit.prevent="addMsg">
+          <div class="form-group row" v-bind:class="{ 'has-danger': !validation.user }">
+            <label for="inputUser" class="col-sm-4 form-control-label"><i class="fa fa-user" aria-hidden="true"></i> Name/名字</label>
+            <div class="col-sm-8">
+              <input class="form-control" id="inputUser" v-model="newMessage.user" placeholder="Your name here">
             </div>
-            <div class="form-group row" v-bind:class="{ 'has-danger': !validation.message }">
-              <label for="inputMsg" class="col-sm-4 form-control-label"><i class="fa fa-comments" aria-hidden="true"></i> Message/留言</label>
-              <div class="col-sm-8">
-                <textarea id="inputMsg" class="form-control" v-model="newMessage.msg" placeholder="You can leave a message here"></textarea>
-              </div>
+          </div>
+          <div class="form-group row" v-bind:class="{ 'has-danger': !validation.message }">
+            <label for="inputMsg" class="col-sm-4 form-control-label"><i class="fa fa-comments" aria-hidden="true"></i> Message/留言</label>
+            <div class="col-sm-8">
+              <textarea id="inputMsg" class="form-control" v-model="newMessage.msg" placeholder="You can leave a message here"></textarea>
             </div>
-            <div class="form-group row" v-bind:class="{ 'has-danger': !validation.message }">
-              <label for="inputPhoto" class="col-sm-4 form-control-label"><i class="fa fa-camera" aria-hidden="true"></i> Choose a photo/照片</label>
-              <div class="col-sm-8">
-                <button type="button" id="inputPhoto" class="btn btn-info" v-on:click.prevent="uploadPhoto"><i class="fa fa-camera" aria-hidden="true"></i> Upload/上傳</button>
-                <img id="uploadedImg" v-if="newMessage.photo" class="img-thumbnail img-fluid" v-bind:src="newMessage.photo" alt="">
-              </div>
+          </div>
+          <div class="form-group row" v-bind:class="{ 'has-danger': !validation.message }">
+            <label for="inputPhoto" class="col-sm-4 form-control-label"><i class="fa fa-camera" aria-hidden="true"></i> Choose a photo/照片</label>
+            <div class="col-sm-8">
+              <button type="button" id="inputPhoto" class="btn btn-info" v-on:click.prevent="uploadPhoto"><i class="fa fa-camera" aria-hidden="true"></i> Upload/上傳</button>
+              <img id="uploadedImg" v-if="newMessage.photo" class="img-thumbnail img-fluid" v-bind:src="newMessage.photo" alt="">
             </div>
-            <hr class="m-y-2">
-            <div class="form-group row">
-              <div class="col-sm-offset-4 col-sm-10">
-                <button :disabled="!isValid" type="submit" class="btn btn-lg btn-primary" value="Add Message">Submit/送出</button>
-              </div>
+          </div>
+          <hr class="m-y-2">
+          <div class="form-group row">
+            <div class="col-sm-offset-4 col-sm-10">
+              <button :disabled="!isValid" type="submit" class="btn btn-lg btn-primary" value="Add Message">Submit/送出</button>
             </div>
-          </form>
-        </div>
+          </div>
+          <hr class="m-y-2">
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -62,8 +63,8 @@ export default {
   computed: {
     validation () {
       return {
-        message: !!this.newMessage.msg.trim() || !!this.newMessage.photo.trim(),
-        user: !!this.newMessage.user.trim()
+        message: (!!this.newMessage.msg && !!this.newMessage.msg.trim()) || (!!this.newMessage.photo && !!this.newMessage.photo.trim()),
+        user: !!this.newMessage.user && !!this.newMessage.user.trim()
       }
     },
     isValid () {
@@ -188,10 +189,47 @@ export default {
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 h1 {
   font-family: 'Lobster', cursive;
+}
+
+.postform-container {
+  width: 100vw;
+  height: 100vh;
+  background: url("https://firebasestorage.googleapis.com/v0/b/project-7921461511894217881.appspot.com/o/looking_for_love-wallpaper-1280x800.jpg?alt=media&token=a729a32d-e830-4ab7-8093-4d0418604606") 0 / cover fixed;
+}
+
+.postform::before {
+    background: url("https://firebasestorage.googleapis.com/v0/b/project-7921461511894217881.appspot.com/o/looking_for_love-wallpaper-1280x800.jpg?alt=media&token=a729a32d-e830-4ab7-8093-4d0418604606") 0 / cover fixed;
+}
+
+.postform {
+    position: relative;
+    margin: 0 auto;
+    padding: 1em;
+    max-width: 40em;
+    background: rgba(255, 240, 245, 0.85) border-box;
+    overflow: hidden;
+    border-radius: .3em;
+    box-shadow: 0 0 0 1px hsla(0,0%,100%,.3) inset,
+                0 .5em 1em rgba(0, 0, 0, 0.6);
+    text-shadow: 0 1px 1px hsla(0,0%,100%,.3);
+}
+
+.postform::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    margin: -30px;
+    z-index: -1;
+    -webkit-filter: blur(20px);
+    filter: blur(20px);
+}
+
+@media (max-width: 33.9em) {
+    h1 {
+      font-size: 2em;
+    }
 }
 </style>
