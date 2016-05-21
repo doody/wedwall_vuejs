@@ -1,11 +1,6 @@
 <template>
 <div id="wrapper">
-  <nav class="navbar pink navbar-light navbar-fixed-top bg-faded">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">Kent and Jill's Wedding</a>
-    </div>
-  </nav>
+  <div class="logo">Kent and Jill's Wedding</div>
   <router-view
     keep-alive
     transition
@@ -19,14 +14,16 @@ require('bootstrap')
 </script>
 
 <style>
-body {
-  padding-top: 70px;
-  background: #DCEDC8;
-}
-.navbar-brand {
-  font-family: 'Lobster', cursive;
-}
-.navbar.pink.navbar-light {
-  background: rgb(255, 192, 203);
+.logo {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0);
+    font-family: 'Lobster', cursive;
+    font-size: 1.5em;
+    text-shadow: 0 1px 1px #000;
+    color: rgb(255, 192, 203);
+    z-index: 9999;
 }
 </style>

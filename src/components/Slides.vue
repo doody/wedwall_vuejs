@@ -24,7 +24,10 @@ export default {
       $('#slides').vegas({
         preload: true,
         delay: 10000,
+        animation: 'random',
+        transition: [ 'fade', 'slideUp', 'slideLeft', 'slideRight', 'zoomOut', 'swirlLeft', 'blur' ],
         transitionDuration: 3000,
+        shuffle: true,
         slides: slides
       })
     })
