@@ -6,7 +6,7 @@
       </div>
       <hr class="m-y-2">
       <div class="card" v-for="(index, photo) in photos">
-        <img class="card-img-top img-fluid" v-bind:src="photo.photo.src">
+        <img class="card-img-top img-fluid" v-bind:src="photo.src">
         <div class="card-block">
           <button type="button" v-on:click.prevent="removePhoto(photo)">Remove</button>
         </div>
@@ -79,7 +79,8 @@ export default {
       var baseURL = 'https://wedwall.firebaseio.com/'
       var Slides = new Firebase(baseURL + 'slides')
       Slides.push({
-        'photo': photo
+        'src': photo.src,
+        'blob': photo.blob
       })
     },
     removePhoto (photo) {
@@ -88,7 +89,7 @@ export default {
       var Slides = new Firebase(baseURL + 'slides/' + photo.id)
       Filepicker.setKey('AMT1I6PlsS7y4f6oyA7Rpz')
       Filepicker.remove(
-        photo.photo.blob,
+        photo.blob,
         function (Blob) {
           console.log('Remove from firebase')
           Slides.remove()
