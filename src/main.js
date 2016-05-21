@@ -6,13 +6,14 @@ import PostView from './components/Post.vue'
 import CompleteView from './components/Complete.vue'
 import AdminSlideUploadView from './components/AdminSlidesUpload.vue'
 import SlidesView from './components/Slides.vue'
+import RemoteControlView from './components/RemoteController.vue'
 
 Vue.use(Router)
 var router = new Router()
 
 router.map({
   '/feeds/': {
-    name: 'feed',
+    name: 'feeds',
     component: FeedsView
   },
   '/post/': {
@@ -26,7 +27,11 @@ router.map({
   '/admin/slides/upload': {
     component: AdminSlideUploadView
   },
+  '/admin/controller/': {
+    component: RemoteControlView
+  },
   '/slides/': {
+    name: 'slides',
     component: SlidesView
   }
 })

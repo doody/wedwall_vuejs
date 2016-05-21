@@ -12,6 +12,8 @@ export default {
   ready () {
     var baseURL = 'https://wedwall.firebaseio.com/'
     var Slides = new Firebase(baseURL + 'slides')
+    var Controller = new Firebase(baseURL + 'controller')
+    var slideApp = this
 
     Slides.once('value', function (snapshot) {
       var data = snapshot.val()
@@ -49,6 +51,16 @@ export default {
         }
       }
       $('#slides').vegas('options', 'slides', slides)
+    })
+
+    Controller.on('child_changed', function (snapshot) {
+      var control = snapshot.val()
+      var state = control.state
+      switch (state) {
+        case 'FEEDS':
+          slideApp.$route.router.go({ name: 'feeds' })
+          break
+      }
     })
   }
 }
