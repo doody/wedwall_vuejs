@@ -58,6 +58,7 @@ export default {
       var state = control.state
       switch (state) {
         case 'FEEDS':
+          $('#slides').vegas('pause')
           slideApp.$route.router.go({ name: 'feeds' })
           break
       }

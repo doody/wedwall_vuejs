@@ -14,14 +14,14 @@
           <div class="form-group row" v-bind:class="{ 'has-danger': !validation.message }">
             <label for="inputMsg" class="col-sm-4 form-control-label"><i class="fa fa-comments" aria-hidden="true"></i> Message/留言</label>
             <div class="col-sm-8">
-              <textarea id="inputMsg" class="form-control" v-model="newMessage.msg" placeholder="You can leave a message here"></textarea>
+              <textarea id="inputMsg" class="form-control" v-model="newMessage.msg" placeholder="You can leave a message here" maxlength="70"></textarea>
             </div>
           </div>
           <div class="form-group row" v-bind:class="{ 'has-danger': !validation.message }">
             <label for="inputPhoto" class="col-sm-4 form-control-label"><i class="fa fa-camera" aria-hidden="true"></i> Choose a photo/照片</label>
             <div class="col-sm-8">
               <button type="button" id="inputPhoto" class="btn btn-info" v-on:click.prevent="uploadPhoto"><i class="fa fa-camera" aria-hidden="true"></i> Upload/上傳</button>
-              <img id="uploadedImg" v-if="newMessage.photo" class="img-thumbnail img-fluid" v-bind:src="newMessage.photo" alt="">
+              <img id="uploadedImg" v-if="newMessage.photo.src" class="img-thumbnail img-fluid" v-bind:src="newMessage.photo.src" alt="">
             </div>
           </div>
           <hr class="m-y-2">
@@ -40,19 +40,19 @@
 <script>
 import Firebase from 'firebase'
 import Filepicker from 'filepicker-js'
-import EXIF from 'exif-js'
 export default {
   data () {
     return {
       newMessage: {
         user: '',
         msg: '',
-        photo: '',
-        photoBlob: null,
-        photoRotation: {
-          rotate90: false,
-          rotate180: false,
-          rotate270: false
+        photo: {
+          src: '',
+          blob: null,
+          orientation: {
+            vertical: false,
+            horizontal: false
+          }
         }
       }
     }
@@ -63,7 +63,7 @@ export default {
   computed: {
     validation () {
       return {
-        message: (!!this.newMessage.msg && !!this.newMessage.msg.trim()) || (!!this.newMessage.photo && !!this.newMessage.photo.trim()),
+        message: (!!this.newMessage.msg && !!this.newMessage.msg.trim()) || (!!this.newMessage.photo.src && !!this.newMessage.photo.src.trim()),
         user: !!this.newMessage.user && !!this.newMessage.user.trim()
       }
     },
@@ -74,63 +74,43 @@ export default {
   methods: {
     cleanData () {
       this.newMessage.msg = ''
-      this.newMessage.photo = ''
-      this.newMessage.photoBlob = null
-      this.newMessage.photoRotation = {
-        rotate90: false,
-        rotate180: false,
-        rotate270: false
+      this.newMessage.photo = {
+        src: '',
+        blob: null,
+        orientation: {
+          vertical: false,
+          horizontal: false
+        }
       }
     },
     addMsg () {
       if (this.isValid) {
-        var app = this
-        if (this.newMessage.photo !== '') {
-          EXIF.getData(document.getElementById('uploadedImg'), function () {
-            var rotateId = EXIF.getTag(this, 'Orientation')
-            console.log(rotateId)
-            if (rotateId !== undefined) {
-              console.log('I have rotation id: ' + rotateId)
-              switch (rotateId) {
-                case 3:
-                case 4:
-                  app.newMessage.photoRotation.rotate180 = true
-                  break
-                case 5:
-                case 6:
-                  app.newMessage.photoRotation.rotate90 = true
-                  break
-                case 7:
-                case 8:
-                  app.newMessage.photoRotation.rotate270 = true
-                  break
-              }
-            }
-            app.saveToFirebase()
-          })
-        } else {
-          app.saveToFirebase()
-        }
         this.setCookie()
+        this.saveToFirebase()
       }
     },
     saveToFirebase () {
+      console.log('Save to Firebase')
       var baseURL = 'https://wedwall.firebaseio.com/'
       var Feeds = new Firebase(baseURL + 'feeds')
       Feeds.push({
         'msg': this.newMessage.msg,
         'user': this.newMessage.user,
-        'photo': this.newMessage.photo,
-        'photoBlob': this.newMessage.photoBlob,
-        'photoRotation': this.newMessage.photoRotation
+        'photo': this.newMessage.photo
       })
       this.cleanData()
       this.$route.router.go({ name: 'complete' })
     },
     uploadPhoto () {
       var app = this
-      Filepicker.setKey('AMT1I6PlsS7y4f6oyA7Rpz')
-      app.removePhoto()
+      Filepicker.setKey('AMFxKGNUbTJqlcVuwJFC3z')
+      if (this.newMessage.photo.blob !== null) {
+        console.log('Photo exist, remove first')
+        this.removePhoto(this.newMessage.photo.blob)
+        this.newMessage.photo.blob = null
+        this.newMessage.photo.src = ''
+        this.newMessage.photo.orientation = ''
+      }
       Filepicker.pick({
         mimetype: 'image/*',
         services: [
@@ -142,9 +122,8 @@ export default {
         imageQuality: 80
       },
       function (Blob) {
-        console.log(JSON.stringify(Blob))
-        app.newMessage.photo = Blob.url
-        app.newMessage.photoBlob = Blob
+        console.log('Photo uploaded')
+        app.rotatePhoto(Blob)
       },
       function (FPError) {
         console.log(FPError.toString())
@@ -169,22 +148,58 @@ export default {
         }
       }
     },
-    removePhoto () {
-      if (this.newMessage.photoBlob != null) {
-        console.log('Remove uploaded file')
-        var app = this
-        // remove photo if already upload one
-        Filepicker.remove(
-          this.newMessage.photoBlob,
-          function (Blob) {
-            console.log('Remove success!')
-            app.newMessage.photo = ''
-            app.newMessage.photoBlob = null
-          },
-          function (FPError) {
-            console.log(FPError)
-          })
-      }
+    removePhoto (photoBlob) {
+      console.log('Removing file...')
+      Filepicker.remove(
+        photoBlob,
+        function (Blob) {
+          console.log('Remove success!')
+        },
+        function (FPError) {
+          console.log(FPError)
+        }
+      )
+    },
+    rotatePhoto (photoBlob) {
+      console.log('Rotating image...')
+      var app = this
+      Filepicker.setKey('AMFxKGNUbTJqlcVuwJFC3z')
+      Filepicker.convert(
+        photoBlob,
+        {
+          rotate: 'exif'
+        },
+        function (newBlob) {
+          console.log('Convert successful')
+          console.log(newBlob.url)
+          app.newMessage.photo.src = newBlob.url
+          app.newMessage.photo.blob = newBlob
+          delete (newBlob['key'])
+          newBlob['client'] = photoBlob.client
+          // Remove the original one
+          app.removePhoto(photoBlob)
+          app.getOrientation(newBlob)
+        }
+      )
+    },
+    getOrientation (photoBlob) {
+      console.log('Getting metadata')
+      var app = this
+      Filepicker.setKey('AMFxKGNUbTJqlcVuwJFC3z')
+      Filepicker.stat(
+        photoBlob,
+        {
+          width: true,
+          height: true
+        },
+        function (metadata) {
+          console.log(JSON.stringify(metadata))
+          if (metadata.width > metadata.height) {
+            app.newMessage.photo.orientation.horizontal = true
+          } else {
+            app.newMessage.photo.orientation.vertical = true
+          }
+        })
     }
   }
 }

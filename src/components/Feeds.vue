@@ -1,33 +1,54 @@
 <template>
   <div id="wrapper">
-    <div v-for="feed in feeds" v-show="feed.show" transition="fade">
-      <div class="widget bottom">
-        <div class="text bottom">
-          <h1>{{ feed.user }} 說:</h1>
+    <div class="wrapper">
+      <div v-for="feed in feeds" v-show="feed.show" transition="fade">
+        <div class="item" :class="[feed.itemStyle , {'resizeH': feed.photo.orientation.horizontal, 'resizeV': feed.photo.orientation.vertical}]">
+          <div class="polaroid">
+            <img class="bg" v-if="feed.photo.src" v-bind:src="feed.photo.src">
+            <div class="caption">
+              <p>&nbsp;</p>
+            </div>
+          </div>
+        </div>
+        <div class="note-wrap" :class="[feed.noteColor]">
           <p>{{ feed.msg }}</p>
+          <div class="footer">
+            <p> - {{ feed.user }}</p>
+          </div>
         </div>
-        <div class="blur">
-          <img class="bg" v-if="feed.photo" v-bind:src="feed.photo" v-bind:class="{ 'rotate90': feed.photoRotation.rotate90, 'rotate180': feed.photoRotation.rotate180, 'rotate270': feed.photoRotation.rotate270 }">
-        </div>
-        <img class="bg" v-if="feed.photo" v-bind:src="feed.photo" v-bind:src="feed.photo" v-bind:class="{ 'rotate90': feed.photoRotation.rotate90, 'rotate180': feed.photoRotation.rotate180, 'rotate270': feed.photoRotation.rotate270 }">
       </div>
     </div>
-    <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
-      <filter id="blur">
-        <feGaussianBlur stdDeviation="10" />
-      </filter>
-    </svg>
   </div>
 </template>
 
 <script>
+import $ from 'jquery'
 import Firebase from 'firebase'
-require('vue-animate/dist/vue-animate.css')
+import Vue from 'vue'
+Vue.transition('fade', {
+  css: false,
+  enter: function (el, done) {
+    $(el)
+      .css('opacity', 0)
+      .animate({ opacity: 1 }, 1000, done)
+  },
+  enterCancelled: function (el) {
+    $(el).stop()
+  },
+  leave: function (el, done) {
+    $(el).animate({ opacity: 0 }, 1000, done)
+  },
+  leaveCancelled: function (el) {
+    $(el).stop()
+  }
+})
 export default {
   data () {
     return {
       feeds: [],
-      newFeeds: []
+      newFeeds: [],
+      noteColor: ['note-yellow', 'note-blue', 'note-green', 'note-pink'],
+      itemStyle: ['itemStyle1', 'itemStyle2', 'itemStyle3', 'itemStyle4']
     }
   },
   created () {
@@ -40,6 +61,7 @@ export default {
       feed.id = snapshot.key()
       feed.show = false
       console.log('Push to feeds')
+      feedApp.randomStyle(feed)
       feedApp.feeds.push(feed)
     })
     // For rest of the feeds after page loaded
@@ -48,6 +70,7 @@ export default {
       console.log('Push to newFeeds')
       feedApp.feeds.some(function (feed) {
         if (feed.id === id) {
+          feedApp.randomStyle(feed)
           feedApp.newFeeds.push(feed)
           return true
         }
@@ -97,141 +120,188 @@ export default {
     },
     turnOff (feed) {
       feed.show = false
+    },
+    randomStyle (feed) {
+      var rColor = Math.floor(Math.random() * this.noteColor.length)
+      var rItem = Math.floor(Math.random() * this.itemStyle.length)
+      feed.noteColor = this.noteColor[rColor]
+      feed.itemStyle = this.itemStyle[rItem]
     }
   }
 }
 </script>
 
 <style>
-img.bg {
-  position: fixed;
-  top: 54px;
-  left: 0;
-  z-index: -2;
-  image-orientation: 0deg;
-  max-width: 100%;
-  max-height: 100%;
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.1/animate.min.css');
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
-
-.blur {
-  height: 200px;
+.wrapper {
   width: 100%;
-  margin: -20px auto;
-  z-index: -1;
-  position: relative;
-  filter: blur(10px);
-  -webkit-filter: blur(10px);
-  -moz-filter: blur(10px);
-  -o-filter: blur(10px);
-  -ms-filter: blur(10px);
-  filter: url(#blur);
-  filter: progid: DXImageTransform.Microsoft.Blur(PixelRadius='10');
-  overflow: hidden;
-}
-
-.blur:after {
-  content: '';
-  height: 150%;
-  width: 100%;
-  background: rgba(255, 255, 255, .2);
-  position: absolute;
-}
-
-.widget {
-  border-top: 2px solid white;
-  border-bottom: 2px solid white;
-  height: 150px;
-  width: 100%;
-  overflow: hidden;
-}
-
-.bottom {
-  position: absolute;
-  margin: auto auto 80px auto;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.text {
-  height: 150px;
-  width: 70%;
-}
-
-.text.bottom {
-  position: absolute;
-  margin: auto;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.text h1 {
-  text-align: left;
-  text-shadow: 1px 1px rgba(0, 0, 0, .1);
-  color: #ffffff;
-  margin-top: 2.5%;
-  font-family: 'cwTeXHei', sans-serif;
-  font-weight: 700;
-  font-size: 1.5em;
-}
-
-.text p {
+  height: 100vh;
+  padding: 0 2rem;
   text-align: center;
-  color: #ffffff;
-  text-shadow: 1px 1px rgba(0, 0, 0, .1);
-  margin-top: 0px;
-  font-family: 'cwTeXHei', sans-serif;
-  font-weight: 500;
-  font-size: 2.5em;
+  line-height: 1.618em;
+  background-color: #e4d4bb;
+  background-image: repeating-radial-gradient(circle,
+    #E4D4BB, #E7DAC6 50%, #E7DAC6 100%
+  );
+  background-size: 10px 10px;
+}
+.polaroid {
+  background: #fff;
+  padding: 1rem;
+  box-shadow: 0 0.25rem 1rem rgba(0,0,0,0.2);
+}
+.caption {
+  font-size: 1.125rem;
+  text-align: center;
+  line-height: 2em;
+}
+.resizeH img {
+  max-width: 500px;
+  height: auto;
+}
+.resizeV img {
+  max-height: 500px;
+  width: auto;
+}
+.item {
+  display: inline-block;
+  margin-top: 2rem;
+}
+.item .polaroid:before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  transition: all 0.35s;
+}
+.itemStyle1 {
+  transform: scale(0.8, 0.8) rotate(5deg);
+  transition: all 0.35s;
+}
+.itemStyle1 .polaroid:before {
+  transform: rotate(6deg);
+  height: 20%;
+  width: 47%;
+  bottom: 30px;
+  right: 12px;
+  box-shadow: 0 2.1rem 2rem rgba(0,0,0,0.4);
+}
+.itemStyle2 {
+  transform: scale(0.8, 0.8) rotate(-5deg);
+  transition: all 0.35s;
+}
+.itemStyle2 .polaroid:before {
+  transform: rotate(-6deg);
+  height: 20%;
+  width: 47%;
+  bottom: 30px;
+  left: 12px;
+  box-shadow: 0 2.1rem 2rem rgba(0,0,0,0.4);
+}
+.itemStyle3 {
+  transform: scale(0.8, 0.8) rotate(3deg);
+  transition: all 0.35s;
+}
+.itemStyle3 .polaroid:before {
+  transform: rotate(4deg);
+  height: 20%;
+  width: 47%;
+  bottom: 30px;
+  right: 12px;
+  box-shadow: 0 2.1rem 2rem rgba(0,0,0,0.3);
+}
+.itemStyle4 {
+  transform: scale(0.8, 0.8) rotate(-3deg);
+  transition: all 0.35s;
+}
+.itemStyle4 .polaroid:before {
+  transform: rotate(-4deg);
+  height: 20%;
+  width: 47%;
+  bottom: 30px;
+  left: 12px;
+  box-shadow: 0 2.1rem 2rem rgba(0,0,0,0.3);
 }
 
-.rotate90 {
-    -webkit-transform: rotate(90deg);
-    -moz-transform: rotate(90deg);
-    -o-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
-    transform: rotate(90deg);
+/* Note styles */
+.note-wrap {
+  width: 350px;
+  min-height: 235px;
+  padding: 35px;
+  margin: 0 22px 44px 22px;
+  position: relative;
+  font-size: 24px;
+  vertical-align: top;
+  display: inline-block;
+  font-family: Englebert, Arial;
+  color: #4b453c;
+  background: #F7E999;
+  line-height: 34px;
+  text-align: center;
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
+  top: 5em;
+}
+.note-wrap:before {
+  display: block;
+  content: "";
+  background: rgba(227, 200, 114, 0.4);
+  width: 130px;
+  height: 28px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  border-radius: 6px/18px 0;
+  position: absolute;
+  top: -13px;
+  left: 50px;
+  -webkit-transform: rotate(-2deg);
+  -moz-transform: rotate(-2deg);
+  -o-transform: rotate(-2deg);
+  -ms-transform: rotate(-2deg);
+  transform: rotate(-2deg);
 }
 
-.rotate180 {
-    -webkit-transform: rotate(180deg);
-    -moz-transform: rotate(180deg);
-    -o-transform: rotate(180deg);
-    -ms-transform: rotate(180deg);
-    transform: rotate(180deg);
+.note-yellow {
+  background: #F7E999;
+  -webkit-transform: rotate(2deg);
+  -moz-transform: rotate(2deg);
+  -o-transform: rotate(2deg);
+  -ms-transform: rotate(2deg);
+  transform: rotate(2deg);
 }
 
-.rotate270 {
-    -webkit-transform: rotate(270deg);
-    -moz-transform: rotate(270deg);
-    -o-transform: rotate(270deg);
-    -ms-transform: rotate(270deg);
-    transform: rotate(270deg);
+.note-blue {
+  background: #b9dcf4;
+  -webkit-transform: rotate(-2deg);
+  -moz-transform: rotate(-2deg);
+  -o-transform: rotate(-2deg);
+  -ms-transform: rotate(-2deg);
+  transform: rotate(-2deg);
 }
 
-@media (max-width: 33.9em) {
-    .blur {
-      height: 150px;
-    }
+.note-pink {
+  background: #FFBDA3;
+  -webkit-transform: rotate(1deg);
+  -moz-transform: rotate(1deg);
+  -o-transform: rotate(1deg);
+  -ms-transform: rotate(1deg);
+  transform: rotate(1deg);
+}
 
-    .widget {
-      height: 100px;
-    }
+.note-green {
+  background: #CAF4B9;
+  -webkit-transform: rotate(-1deg);
+  -moz-transform: rotate(-1deg);
+  -o-transform: rotate(-1deg);
+  -ms-transform: rotate(-1deg);
+  transform: rotate(-1deg);
+}
 
-    .text {
-      height: 100px;
-      width: 100%;
-    }
-
-    .text h1 {
-      font-size: 1em;
-    }
-
-    .text p {
-      font-size: 2em;
-    }
+.footer {
+  position: absolute;
+  right: 30px;
+  bottom: 0;
 }
 </style>
